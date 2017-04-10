@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from loader.models import DownloadFile, ResultTask
 from loader.forms import UploadFileForm
 from loader.tasks import file_length
-from loader.api.file import File
+from loader.api.storage import Storage
 
 def index(request):
     if request.method == 'POST':
@@ -15,12 +15,11 @@ def index(request):
         if form.is_valid():
             new_file = DownloadFile(id = form.cleaned_data['id'], file = request.FILES['file'], length=-1)
             new_file.save()
-            new_task = ResultTask(id_file=form.cleaned_data['id'], done=False, length=-1, percent=0)
-            new_task.save()
             with tempfile.NamedTemporaryFile(delete=False) as f:
                 for chunk in request.FILES["file"].chunks():
                     f.write(chunk)
-            file_length.delay(new_file.id, f.name)
+            task = file_length.delay(new_file.id, f.name)
+            Storage().add(new_file.id, task.id)
             return HttpResponseRedirect(reverse('main_page'))
     else:
         form = UploadFileForm()

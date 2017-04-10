@@ -1,7 +1,3 @@
-from loader.api.file import File
-from loader.models import DownloadFile
-
-
 class Storage(object):
 
     content = {}
@@ -16,19 +12,14 @@ class Storage(object):
     def __init__(self):
         if (self.__initialized): return
         self.__initialized = True
-        self.initial()
 
-    def add(self, file):
-        if file.id in self.content:
+    def add(self, id, task):
+        if id in self.content:
             raise TypeError
-        self.content[str(file.id)] = file
+        self.content[str(id)] = task
 
-    def get_file(self, id):
+    def get_task(self, id):
         if str(id) not in self.content:
             raise ValueError
         return self.content[str(id)]
 
-    def initial(self):
-        print('init')
-        for file in DownloadFile.objects.all():
-            self.content[str(file.id)] = File(file.id)

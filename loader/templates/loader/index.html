@@ -4,23 +4,25 @@
     <style>
         ::-webkit-progress-bar {
             background: ghostwhite;
+            border: 2px solid darkgreen;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
         }
         ::-webkit-progress-value {
-            background: green;
+            background: forestgreen;
         }
         ::-moz-progress-bar {
-            background: red;
+            background: yellow;
         }
         progress {
             display: block;
-            color: green;
+            color: yellow;
             background: ghostwhite;
             border: 2px solid darkgreen;
             border-radius: 5px;
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
             box-sizing: border-box;
-            width: 300px;
+            width: 100%;
             height: 25px;
             line-height: 21px;
             font-size: 15px;
@@ -29,7 +31,7 @@
         }
         table {
             width: 100%;
-            background: white;
+            background: #212020;
             color: black;
             border-spacing: 1px;
            }
@@ -51,8 +53,8 @@
                 <tr>
                     <td>{{file.id}}</td>
                     <td>{{file.file}}</td>
-                    <td><progress max="100" value="0" id="progress_{{file.id}}">Загружено <span id="percent">0</span>%</progress></td>
-                    <td>{{file.length}}</td>
+                    <td><progress max="100" value="0" id="progress_{{file.id}}"></progress></td>
+                    <td><p id="length_{{file.id}}">{{file.length}}</p></td>
                 </tr>
                 <script>
                     $(document.getElementsByTagName({{file.id}})).ready(function() {
@@ -86,7 +88,7 @@
                 var newCell = newRow.insertCell(2);
                 newCell.innerHTML= '<p><progress max="100" value="0" id="progress_' + max_element + '"></progress></p>';
                 var newCell = newRow.insertCell(3);
-                newCell.innerHTML="-1";
+                newCell.innerHTML='<p id="length_'+ max_element + '">-1</p>';
                 upload(file, max_element);
             }
         };
@@ -96,13 +98,13 @@
             ajax.upload.onprogress = function(event) {
                 progress.setAttribute('max', event.total);
                 progress.value = event.loaded;
-            }
+            };
             ajax.onload = ajax.onerror = function() {
                 if (this.status == 200) {
                     move(elem_id)
                 } else {
                 }
-            }
+            };
 
             var formData = new FormData();
             formData.append("file", file);
@@ -112,8 +114,8 @@
         }
 
         function move(_el) {
-            var pr = document.getElementById("progress_" + _el);
-            var pr = document.getElementById("progress_" + _el);
+            var pr = document.getElementById("progress_" + _el),
+                length_text = document.getElementById("length_" + _el);
             pr.setAttribute('max', 100);
             $.ajax({
                 method: "POST",
@@ -121,24 +123,12 @@
                 data: { file_id: _el}
             })
             .done(function( msg ) {
-                console.log(JSON.stringify(msg));
                 pr.value = msg.percent;
+                length_text.innerHTML = msg.length;
                 if(!msg.done){
-                    move(_el)
+                    move(_el);
                 }
             });
-{#          var elem = document.getElementById(_el);#}
-{#          var width = 10;#}
-{#          var id = setInterval(frame, 50);#}
-{#          function frame() {#}
-{#            if (width >= 100) {#}
-{#              clearInterval(id);#}
-{#            } else {#}
-{#              width++;#}
-{#              elem.style.width = width + '%';#}
-{#              elem.innerHTML = width * 1  + '%';#}
-{#            }#}
-{#          }#}
         }
         </script>
     </body>
