@@ -1,20 +1,19 @@
 from loader.models import DownloadFile
 
 
-class File():
+class File:
 
     percent = 0
     length = -1
     done = False
 
-    def __init__(self, id):
-
-        if id:
-            self.id = id
+    def __init__(self, id_file):
+        if id_file:
+            self.id = id_file
         else:
             raise TypeError
         self.db_instance = DownloadFile.objects.get(id=self.id)
-        if self.db_instance.length!=-1:
+        if self.db_instance.length != -1:
             self.percent = 100
             self.done = True
             self.length = self.db_instance.length
@@ -26,7 +25,7 @@ class File():
 
     def set_result(self, result):
         print(result)
-        if result<0:
+        if result < 0:
             raise ValueError
         self.db_instance.length = result
         self.db_instance.save()

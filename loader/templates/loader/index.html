@@ -81,14 +81,14 @@
             max_element++;
             if (file) {
                 var newRow=table.insertRow(-1);
-                var newCell = newRow.insertCell(0);
-                newCell.innerHTML=max_element;
-                var newCell = newRow.insertCell(1);
-                newCell.innerHTML=file.name;
-                var newCell = newRow.insertCell(2);
-                newCell.innerHTML= '<p><progress max="100" value="0" id="progress_' + max_element + '"></progress></p>';
-                var newCell = newRow.insertCell(3);
-                newCell.innerHTML='<p id="length_'+ max_element + '">-1</p>';
+                var newIDCell = newRow.insertCell(0);
+                newIDCell.innerHTML=max_element;
+                var newNameCell = newRow.insertCell(1);
+                newNameCell.innerHTML=file.name;
+                var newProgressCell = newRow.insertCell(2);
+                newProgressCell.innerHTML= '<p><progress max="100" value="0" id="progress_' + max_element + '"></progress></p>';
+                var newLengthCell = newRow.insertCell(3);
+                newLengthCell.innerHTML='<p id="length_'+ max_element + '">-1</p>';
                 upload(file, max_element);
             }
         };
