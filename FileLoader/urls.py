@@ -15,8 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from loader.views.index import index
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^loader/', include('loader.urls'))
+    url(r'^loader/', include('loader.urls')),
+    url(r'^$', index, name='main_page')
+
 ]

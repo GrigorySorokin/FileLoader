@@ -1,19 +1,41 @@
-from loader.api.storage import Storage
+from loader.models import DownloadFile
+
 
 class File():
 
-    def __init__(self, id, body):
+    percent = 0
+    length = -1
+    done = False
+
+    def __init__(self, id):
 
         if id:
             self.id = id
-            self.status = Storage.get_file(id)
-            return
+        else:
+            raise TypeError
+        self.db_instance = DownloadFile.objects.get(id=self.id)
+        if self.db_instance.length!=-1:
+            self.percent = 100
+            self.done = True
+            self.length = self.db_instance.length
 
-        if body:
-            self.id, self.status = Storage.add_file(body)
-            return
+    def set_percent(self, percent):
+        if 0 < percent > 100:
+            raise ValueError
+        self.percent = percent
 
-        raise ValueError
+    def set_result(self, result):
+        print(result)
+        if result<0:
+            raise ValueError
+        self.db_instance.length = result
+        self.db_instance.save()
+        self.done = True
+        self.length = result
 
     def get_status(self):
-        pass
+        return {
+            'percent': self.percent,
+            'length': self.length,
+            'done': self.done
+        }

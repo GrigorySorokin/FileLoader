@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <script src="static/loader/jquery-3.2.0.min.js"></script>
+    <style>
+        ::-webkit-progress-bar {
+            background: ghostwhite;
+        }
+        ::-webkit-progress-value {
+            background: green;
+        }
+        ::-moz-progress-bar {
+            background: red;
+        }
+        progress {
+            display: block;
+            color: green;
+            background: ghostwhite;
+            border: 2px solid darkgreen;
+            border-radius: 5px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            width: 300px;
+            height: 25px;
+            line-height: 21px;
+            font-size: 15px;
+            font-family: sans-serif;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            background: white;
+            color: black;
+            border-spacing: 1px;
+           }
+       td, th {
+            background: white;
+            padding: 5px;
+           }
+        </style>
+    <head>
+        <meta charset="utf-8">
+        <title>FileLoader</title>
+    </head>
+    <body>
+    <table id = 'table'>
+        <tr><th>ID</th><th>Файл</th><th>Процесс обработки</th><th>Результат</th></tr>
+    {% if files %}
+
+            {% for file in files %}
+                <tr>
+                    <td>{{file.id}}</td>
+                    <td>{{file.file}}</td>
+                    <td><progress max="100" value="0" id="progress_{{file.id}}">Загружено <span id="percent">0</span>%</progress></td>
+                    <td>{{file.length}}</td>
+                </tr>
+                <script>
+                    $(document.getElementsByTagName({{file.id}})).ready(function() {
+                        move({{file.id}})
+                    });
+                </script>
+
+            {% endfor %}
+    {% endif %}
+    </table>
+        <form id="form" method="post" enctype="multipart/form-data" onsubmit = >
+            {% csrf_token %}
+            <input type="file" name="file">
+            <button type="submit">Загрузить</button>
+        </form>
+
+    <script>
+        var table       = document.getElementById('table'),
+            max_element = {{max_element}};
+        document.getElementById("form").onsubmit = function(e) {
+            e.preventDefault();
+            var input = this.elements.file;
+            var file = input.files[0];
+            max_element++;
+            if (file) {
+                var newRow=table.insertRow(-1);
+                var newCell = newRow.insertCell(0);
+                newCell.innerHTML=max_element;
+                var newCell = newRow.insertCell(1);
+                newCell.innerHTML=file.name;
+                var newCell = newRow.insertCell(2);
+                newCell.innerHTML= '<p><progress max="100" value="0" id="progress_' + max_element + '"></progress></p>';
+                var newCell = newRow.insertCell(3);
+                newCell.innerHTML="-1";
+                upload(file, max_element);
+            }
+        };
+        function upload(file, elem_id) {
+            var progress = document.getElementById("progress_" + elem_id);
+            var ajax = new XMLHttpRequest();
+            ajax.upload.onprogress = function(event) {
+                progress.setAttribute('max', event.total);
+                progress.value = event.loaded;
+            }
+            ajax.onload = ajax.onerror = function() {
+                if (this.status == 200) {
+                    move(elem_id)
+                } else {
+                }
+            }
+
+            var formData = new FormData();
+            formData.append("file", file);
+            formData.append("id", elem_id);
+            ajax.open("POST", "", true);
+            ajax.send(formData);
+        }
+
+        function move(_el) {
+            var pr = document.getElementById("progress_" + _el);
+            var pr = document.getElementById("progress_" + _el);
+            pr.setAttribute('max', 100);
+            $.ajax({
+                method: "POST",
+                url: "/loader/get_file_status",
+                data: { file_id: _el}
+            })
+            .done(function( msg ) {
+                console.log(JSON.stringify(msg));
+                pr.value = msg.percent;
+                if(!msg.done){
+                    move(_el)
+                }
+            });
+{#          var elem = document.getElementById(_el);#}
+{#          var width = 10;#}
+{#          var id = setInterval(frame, 50);#}
+{#          function frame() {#}
+{#            if (width >= 100) {#}
+{#              clearInterval(id);#}
+{#            } else {#}
+{#              width++;#}
+{#              elem.style.width = width + '%';#}
+{#              elem.innerHTML = width * 1  + '%';#}
+{#            }#}
+{#          }#}
+        }
+        </script>
+    </body>
+</html>
