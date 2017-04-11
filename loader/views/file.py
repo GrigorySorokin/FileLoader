@@ -26,7 +26,7 @@ def get_file_status(request):
             return HttpResponse(json.dumps({
                 'percent': 100,
                 'done': True,
-                'length': task.result
+                'length': task.result['result']
             }), content_type="application/json")
 
         info = task.info
