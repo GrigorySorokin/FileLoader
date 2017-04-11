@@ -24,7 +24,7 @@ def index(request):
             return HttpResponseRedirect(reverse('main_page'))
     else:
         form = UploadFileForm()
-    DownloadFile.objects.all().delete()
+    # DownloadFile.objects.all().delete()
     files = DownloadFile.objects.all()
     return render_to_response(
         'loader/index.html',
